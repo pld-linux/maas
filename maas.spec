@@ -2,7 +2,7 @@ Summary:	Multicast address allocation server
 Summary(pl):	Serwer przydzia³u adresów multicastowych
 Name:		maas
 Version:	0.1
-Release:	2
+Release:	3
 License:	GPL
 Group:		Networking/Daemons
 Group(de):	Netzwerkwesen/Server
@@ -41,8 +41,6 @@ install %{SOURCE1} .
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/maasd
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/sysconfig/maasd
 
-gzip -9nf AUTHORS src/*.conf
-
 %pre
 grep -q maasd %{_sysconfdir}/group || (
 	/usr/sbin/groupadd -g 69 -r -f maasd 1>&2 || :
@@ -73,7 +71,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc AUTHORS* %{name}_manual.pdf src/*.conf*
+%doc AUTHORS %{name}_manual.pdf src/*.conf
 %attr(755,root,root) %{_sbindir}/*
 %{_sysconfdir}/%{name}
 %attr(755,root,root) /etc/rc.d/init.d/*
