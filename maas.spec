@@ -1,4 +1,3 @@
-# TODO: standardize %pre (grep on group/passwd files is wrong!)
 Summary:	Multicast address allocation server
 Summary(pl):	Serwer przydzia³u adresów multicastowych
 Name:		maas
@@ -14,9 +13,13 @@ Source3:	%{name}d.sysconfig
 URL:		http://deimos.campus.luth.se/malloc/
 BuildRequires:	autoconf
 PreReq:		rc-scripts
-Requires(pre): /usr/sbin/groupadd
-Requires(pre): /usr/sbin/useradd
+Requires(pre):	/usr/bin/getgid
+Requires(pre):	/bin/id
+Requires(pre):	/usr/sbin/groupadd
+Requires(pre):	/usr/sbin/useradd
 Requires(post,preun):	/sbin/chkconfig
+Requires(postun):	/usr/sbin/userdel
+Requires(postun):	/usr/sbin/groupdel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -48,13 +51,22 @@ install %{SOURCE3} $RPM_BUILD_ROOT/etc/sysconfig/maasd
 rm -rf $RPM_BUILD_ROOT
 
 %pre
-grep -q maasd %{_sysconfdir}/group || (
-       /usr/sbin/groupadd -g 69 -r -f maasd 1>&2 || :
-)
-grep -q maasd %{_sysconfdir}/passwd || (
-       /usr/sbin/useradd -M -o -r -u 69 \
-        -g maasd -c "MAAS server" -d /dev/null maasd 1>&2 || :
-)
+if [ -n "`/usr/bin/getgid maasd`" ]; then
+	if [ "`getgid maasd`" != "69" ]; then
+		echo "Error: group maasd doesn't have gid=69. Correct this before installing maas." 1>&2
+		exit 1
+	fi
+else
+	/usr/sbin/groupadd -g 69 -r -f maasd 1>&2
+fi
+if [ -n "`/bin/id -u maasd 2>/dev/null`" ]; then
+	if [ "`/bin/id -u maasd`" != "69" ]; then
+		echo "Error: user maasd doesn't have uid=69. Correct this before installing maas." 1>&2
+		exit 1
+	fi
+else
+	/usr/sbin/useradd -u 69 -M -r -d /dev/null -s /bin/false -c "MAAS User" -g maasd maasd 1>&2
+fi
 
 %post
 /sbin/chkconfig --add maasd
@@ -70,6 +82,12 @@ if [ "$1" = "0" ]; then
 		/etc/rc.d/init.d/maasd stop >&2
 	fi
 	/sbin/chkconfig --del maasd
+fi
+
+%postun
+if [ "$1" = "0" ]; then
+	/usr/sbin/userdel maasd || :
+	/usr/sbin/groupdel maasd || :
 fi
 
 %files
