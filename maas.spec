@@ -5,8 +5,6 @@ Version:	0.1
 Release:	2
 License:	GPL
 Group:		Networking/Daemons
-Group(de):	Netzwerkwesen/Server
-Group(pl):	Sieciowe/Serwery
 Source0:	http://prdownloads.sourceforge.net/malloc/%{name}-%{version}.tar.gz
 Source1:	http://deimos.campus.luth.se/malloc/documentation/%{name}_manual.pdf
 Source2:	%{name}d.init
