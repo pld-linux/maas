@@ -95,5 +95,5 @@ fi
 %doc AUTHORS %{name}_manual.pdf src/*.conf
 %attr(755,root,root) %{_sbindir}/*
 %{_sysconfdir}/%{name}
-%attr(755,root,root) /etc/rc.d/init.d/*
+%attr(754,root,root) /etc/rc.d/init.d/*
 %attr(640,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/*
