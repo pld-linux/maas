@@ -13,7 +13,8 @@ Source3:	%{name}d.sysconfig
 URL:		http://deimos.campus.luth.se/malloc/
 BuildRequires:	autoconf
 PreReq:		rc-scripts
-Requires(pre):	user-maas
+Requires(pre): /usr/sbin/groupadd
+Requires(pre): /usr/sbin/useradd
 Requires(post,preun):	/sbin/chkconfig
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -44,6 +45,23 @@ install %{SOURCE3} $RPM_BUILD_ROOT/etc/sysconfig/maasd
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%pre
+grep -q maasd %{_sysconfdir}/group || (
+       /usr/sbin/groupadd -g 69 -r -f maasd 1>&2 || :
+)
+grep -q maasd %{_sysconfdir}/passwd || (
+       /usr/sbin/useradd -M -o -r -u 69 \
+        -g maasd -c "MAAS server" -d /dev/null maasd 1>&2 || :
+)
+
+%post
+/sbin/chkconfig --add maasd
+if [ -r /var/lock/subsys/maasd ]; then
+       /etc/rc.d/init.d/maasd restart >&2
+else
+       echo "Run \"/etc/rc.d/init.d/maasd start\" to start MAAS daemon."
+fi
 
 %preun
 if [ "$1" = "0" ]; then
