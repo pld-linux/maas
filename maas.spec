@@ -4,14 +4,15 @@ Name:		maas
 Version:	0.1
 Release:	1
 License:	GPL
-Group:		Daemons
-Group(de):	Server
-Group(pl):	Serwery
+Group:		Networking/Daemons
+Group(de):	Netzwerkwesen/Server
+Group(pl):	Sieciowe/Serwery
 Source0:	http://prdownloads.sourceforge.net/malloc/%{name}-%{version}.tar.gz
 Source1:	http://deimos.campus.luth.se/malloc/documentation/%{name}_manual.pdf
 Source2:	%{name}d.init
 Source3:	%{name}d.sysconfig
 URL:		http://deimos.campus.luth.se/malloc/
+Prereq:		rc-scripts
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -31,8 +32,8 @@ protoko³y MADCAP i AAP.
 
 %install
 rm -rf $RPM_BUILD_ROOT
-
 install -d $RPM_BUILD_ROOT{%{_sbindir},%{_sysconfdir}/%{name},/etc/rc.d/init.d,/etc/sysconfig}
+
 install src/maasd $RPM_BUILD_ROOT%{_sbindir}
 install %{SOURCE1} .
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/maasd
@@ -64,8 +65,6 @@ if [ -r /var/lock/subsys/maasd ]; then
 else
 	echo "Run \"/etc/rc.d/init.d/maasd start\" to start MAAS daemon."
 fi
-
-%postun
 
 %clean
 rm -rf $RPM_BUILD_ROOT
