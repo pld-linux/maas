@@ -12,14 +12,18 @@ Source2:	%{name}d.init
 Source3:	%{name}d.sysconfig
 URL:		http://deimos.campus.luth.se/malloc/
 BuildRequires:	autoconf
+BuildRequires:	rpmbuild(macros) >= 1.159
 PreReq:		rc-scripts
 Requires(pre):	/usr/bin/getgid
 Requires(pre):	/bin/id
+Requires(pre):	/usr/bin/getgid
 Requires(pre):	/usr/sbin/groupadd
 Requires(pre):	/usr/sbin/useradd
 Requires(post,preun):	/sbin/chkconfig
-Requires(postun):	/usr/sbin/userdel
 Requires(postun):	/usr/sbin/groupdel
+Requires(postun):	/usr/sbin/userdel
+Provides:	group(maasd)
+Provides:	user(maasd)
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -57,7 +61,7 @@ if [ -n "`/usr/bin/getgid maasd`" ]; then
 		exit 1
 	fi
 else
-	/usr/sbin/groupadd -g 69 -r -f maasd 1>&2
+	/usr/sbin/groupadd -g 69 maasd 1>&2
 fi
 if [ -n "`/bin/id -u maasd 2>/dev/null`" ]; then
 	if [ "`/bin/id -u maasd`" != "69" ]; then
@@ -65,7 +69,8 @@ if [ -n "`/bin/id -u maasd 2>/dev/null`" ]; then
 		exit 1
 	fi
 else
-	/usr/sbin/useradd -u 69 -M -r -d /dev/null -s /bin/false -c "MAAS User" -g maasd maasd 1>&2
+	/usr/sbin/useradd -u 69 -d /usr/share/empty -s /bin/false \
+		-c "MAAS User" -g maasd maasd 1>&2
 fi
 
 %post
@@ -86,8 +91,8 @@ fi
 
 %postun
 if [ "$1" = "0" ]; then
-	/usr/sbin/userdel maasd || :
-	/usr/sbin/groupdel maasd || :
+	%userremove maasd
+	%groupremove maasd
 fi
 
 %files
