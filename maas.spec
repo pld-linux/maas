@@ -30,7 +30,7 @@ protoko³y MADCAP i AAP.
 %setup  -q
 
 %build
-%configure 
+%configure2_13 
 %{__make}
 
 %install
