@@ -31,7 +31,7 @@ MAAS to serwer przydzia³u adresów multicastowych wykorzystuj±cy
 protoko³y MADCAP i AAP.
 
 %prep
-%setup  -q
+%setup -q
 
 %build
 %{__autoconf}
@@ -71,9 +71,9 @@ fi
 %post
 /sbin/chkconfig --add maasd
 if [ -r /var/lock/subsys/maasd ]; then
-       /etc/rc.d/init.d/maasd restart >&2
+	/etc/rc.d/init.d/maasd restart >&2
 else
-       echo "Run \"/etc/rc.d/init.d/maasd start\" to start MAAS daemon."
+	echo "Run \"/etc/rc.d/init.d/maasd start\" to start MAAS daemon."
 fi
 
 %preun
