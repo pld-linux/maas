@@ -5,15 +5,15 @@ Version:	0.1
 Release:	2
 License:	GPL
 Group:		Networking/Daemons
+Group(de):	Netzwerkwesen/Server
+Group(pl):	Sieciowe/Serwery
 Source0:	http://prdownloads.sourceforge.net/malloc/%{name}-%{version}.tar.gz
 Source1:	http://deimos.campus.luth.se/malloc/documentation/%{name}_manual.pdf
 Source2:	%{name}d.init
 Source3:	%{name}d.sysconfig
+BuildRequires:	autoconf
 URL:		http://deimos.campus.luth.se/malloc/
-Prereq:		rc-scripts
-Prereq:		/sbin/chkconfig
-Prereq:		/usr/sbin/groupadd
-Prereq:		/usr/sbin/useradd
+PreReq:		rc-scripts
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -28,7 +28,8 @@ protoko³y MADCAP i AAP.
 %setup  -q
 
 %build
-%configure2_13
+autoconf
+%configure 
 %{__make}
 
 %install
@@ -42,9 +43,6 @@ install %{SOURCE3} $RPM_BUILD_ROOT/etc/sysconfig/maasd
 
 gzip -9nf AUTHORS src/*.conf
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 %pre
 grep -q maasd %{_sysconfdir}/group || (
 	/usr/sbin/groupadd -g 69 -r -f maasd 1>&2 || :
@@ -54,6 +52,14 @@ grep -q maasd %{_sysconfdir}/passwd || (
         -g maasd -c "MAAS server" -d /dev/null maasd 1>&2 || :
 )
 
+%preun
+if [ "$1" = "0" ]; then
+	if [ -r /var/lock/subsys/maasd ]; then
+		/etc/rc.d/init.d/maasd stop >&2
+	fi
+	/sbin/chkconfig --del maasd
+fi
+
 %post
 /sbin/chkconfig --add maasd
 if [ -r /var/lock/subsys/maasd ]; then
@@ -62,13 +68,8 @@ else
 	echo "Run \"/etc/rc.d/init.d/maasd start\" to start MAAS daemon."
 fi
 
-%preun
-if [ "$1" = "0" ]; then
-	if [ -r /var/lock/subsys/maasd ]; then
-		/etc/rc.d/init.d/maasd stop >&2
-	fi
-	/sbin/chkconfig --del maasd
-fi
+%clean
+rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
