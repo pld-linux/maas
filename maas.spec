@@ -1,3 +1,4 @@
+# TODO: standardize %pre (grep on group/passwd files is wrong!)
 Summary:	Multicast address allocation server
 Summary(pl):	Serwer przydzia³u adresów multicastowych
 Name:		maas
@@ -5,15 +6,16 @@ Version:	0.1
 Release:	3
 License:	GPL
 Group:		Networking/Daemons
-Group(de):	Netzwerkwesen/Server
-Group(pl):	Sieciowe/Serwery
-Source0:	http://prdownloads.sourceforge.net/malloc/%{name}-%{version}.tar.gz
+Source0:	http://dl.sourceforge.net/malloc/%{name}-%{version}.tar.gz
 Source1:	http://deimos.campus.luth.se/malloc/documentation/%{name}_manual.pdf
 Source2:	%{name}d.init
 Source3:	%{name}d.sysconfig
-BuildRequires:	autoconf
 URL:		http://deimos.campus.luth.se/malloc/
+BuildRequires:	autoconf
 PreReq:		rc-scripts
+Requires(pre):	/usr/sbin/groupadd
+Requires(pre):	/usr/sbin/useradd
+Requires(post,preun):	/sbin/chkconfig
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -50,6 +52,9 @@ grep -q maasd %{_sysconfdir}/passwd || (
         -g maasd -c "MAAS server" -d /dev/null maasd 1>&2 || :
 )
 
+%clean
+rm -rf $RPM_BUILD_ROOT
+
 %preun
 if [ "$1" = "0" ]; then
 	if [ -r /var/lock/subsys/maasd ]; then
@@ -65,9 +70,6 @@ if [ -r /var/lock/subsys/maasd ]; then
 else
 	echo "Run \"/etc/rc.d/init.d/maasd start\" to start MAAS daemon."
 fi
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
