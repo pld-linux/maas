@@ -1,0 +1,79 @@
+Summary:	Multicast address allocation server
+Summary(pl):	Serwer przydzia³u adresów multicastowych
+Name:		maas
+Version:	0.1
+Release:	1
+License:	GPL
+Group:		Daemons
+Group(de):	Server
+Group(pl):	Serwery
+Source0:	http://prdownloads.sourceforge.net/malloc/%{name}-%{version}.tar.gz
+Source1:	http://deimos.campus.luth.se/malloc/documentation/%{name}_manual.pdf
+Source2:	%{name}d.init
+Source3:	%{name}d.sysconfig
+URL:		http://deimos.campus.luth.se/malloc/
+BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+%description
+MAAS is multicast address allocation server using MADCAP and AAP
+protocols.
+
+%description -l pl
+MAAS to serwer przydzia³u adresów multicastowych wyko¿ystuj±cy
+protoko³y MADCAP i AAP.
+
+%prep
+%setup  -q
+
+%build
+%configure 
+%{__make}
+
+%install
+rm -rf $RPM_BUILD_ROOT
+
+install -d $RPM_BUILD_ROOT{%{_sbindir},%{_sysconfdir}/%{name},/etc/rc.d/init.d,/etc/sysconfig}
+install src/maasd $RPM_BUILD_ROOT%{_sbindir}
+install %{SOURCE1} .
+install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/maasd
+install %{SOURCE3} $RPM_BUILD_ROOT/etc/sysconfig/maasd
+
+gzip -9nf AUTHORS src/*.conf
+
+%pre
+grep -q maasd %{_sysconfdir}/group || (
+	/usr/sbin/groupadd -g 69 -r -f maasd 1>&2 || :
+)
+grep -q maasd %{_sysconfdir}/passwd || (
+	/usr/sbin/useradd -M -o -r -u 69 \
+        -g maasd -c "MAAS server" -d /dev/null maasd 1>&2 || :
+)
+
+%preun
+if [ "$1" = "0" ]; then
+	if [ -r /var/lock/subsys/maasd ]; then
+		/etc/rc.d/init.d/maasd stop >&2
+	fi
+	/sbin/chkconfig --del maasd
+fi
+
+%post
+/sbin/chkconfig --add maasd
+if [ -r /var/lock/subsys/maasd ]; then
+	/etc/rc.d/init.d/maasd restart >&2
+else
+	echo "Run \"/etc/rc.d/init.d/maasd start\" to start MAAS daemon."
+fi
+
+%postun
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%doc AUTHORS* %{name}_manual.pdf src/*.conf*
+%attr(755,root,root) %{_sbindir}/*
+%{_sysconfdir}/%{name}
+%attr(755,root,root) /etc/rc.d/init.d/*
+%attr(640,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/*
