@@ -1,0 +1,10 @@
+# Customized setings for maasd
+
+# Define a AAP config names (from /etc/maas/aap.conf)
+AAP_CONFIG_NAMES="default"
+
+# Define a MADCAP config name (from /etc/maas/madcap.conf)
+MADCAP_CONFIG_NAME=""
+
+# Define nice level for maasd 
+SERVICE_RUN_NICE_LEVEL="+5"
