@@ -14,6 +14,8 @@ Source3:	%{name}d.sysconfig
 URL:		http://deimos.campus.luth.se/malloc/
 Prereq:		rc-scripts
 Prereq:		/sbin/chkconfig
+Prereq:		/usr/sbin/groupadd
+Prereq:		/usr/sbin/useradd
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -21,7 +23,7 @@ MAAS is multicast address allocation server using MADCAP and AAP
 protocols.
 
 %description -l pl
-MAAS to serwer przydzia³u adresów multicastowych wyko¿ystuj±cy
+MAAS to serwer przydzia³u adresów multicastowych wykorzystuj±cy
 protoko³y MADCAP i AAP.
 
 %prep
