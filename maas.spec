@@ -42,18 +42,29 @@ install %{SOURCE3} $RPM_BUILD_ROOT/etc/sysconfig/maasd
 gzip -9nf AUTHORS src/*.conf
 
 %pre
-GROUP=maasd; GID=69; %groupadd
-USER=maasd; UID=69; HOMEDIR=/dev/null; COMMENT="MAAS server"; %useradd
-
-%post
-NAME=maasd; DESC="MAAS daemon"; %chkconfig_add
+grep -q maasd %{_sysconfdir}/group || (
+	/usr/sbin/groupadd -g 69 -r -f maasd 1>&2 || :
+)
+grep -q maasd %{_sysconfdir}/passwd || (
+	/usr/sbin/useradd -M -o -r -u 69 \
+        -g maasd -c "MAAS server" -d /dev/null maasd 1>&2 || :
+)
 
 %preun
-NAME=maasd; %chkconfig_del
+if [ "$1" = "0" ]; then
+	if [ -r /var/lock/subsys/maasd ]; then
+		/etc/rc.d/init.d/maasd stop >&2
+	fi
+	/sbin/chkconfig --del maasd
+fi
 
-%postun
-USER=maasd; %userdel
-GROUP=maasd; %groupdel
+%post
+/sbin/chkconfig --add maasd
+if [ -r /var/lock/subsys/maasd ]; then
+	/etc/rc.d/init.d/maasd restart >&2
+else
+	echo "Run \"/etc/rc.d/init.d/maasd start\" to start MAAS daemon."
+fi
 
 %clean
 rm -rf $RPM_BUILD_ROOT
