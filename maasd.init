@@ -1,10 +1,10 @@
 #!/bin/sh
 #
-# maasd         This shell script takes care of starting and stopping
-#               maasd (multicast address allocation daemon).
+# maasd		This shell script takes care of starting and stopping
+#		maasd (multicast address allocation daemon).
 #
 # chkconfig:	345 80 10
-# description:	maasd is the  daemon.
+# description:	maasd is the multicast address allocation daemon.
 
 # Source function library.
 . /etc/rc.d/init.d/functions
@@ -13,35 +13,44 @@
 . /etc/sysconfig/network
 
 # Check that networking is up.
-[ "${NETWORKING}" = "no" ] && exit 0
+if is_yes "${NETWORKING}"; then
+	if [ ! -f /var/lock/subsys/network ]; then
+		# nls "ERROR: Networking is down. %s can't be run." <service>
+		msg_network_down maasd
+		exit 1
+	fi
+else
+	exit 0
+fi
 
 # Source maas configuration.
 . /etc/sysconfig/maasd
+
 
 # See how we were called.
 case "$1" in
   start)
 	# Check if the service is already running?
-        if [ ! -f /var/lock/subsys/maasd ]; then
-            	msg_starting maasd
+	if [ ! -f /var/lock/subsys/maasd ]; then
+		msg_starting maasd
 		MAASD_FLAGS="-a /etc/maas/aap.conf -m /etc/maas/madcap.conf"
 		MAASD_FLAGS="$MAASD_FLAGS $AAP_CONFIG_NAMES"
 		MAASD_FLAGS="$MAASD_FLAGS $MADCAP_CONFIG_NAME"
-            	daemon su maasd - -c "\"exec /usr/sbin/maasd $MAASD_FLAGS &\""
-        	RETVAL=$?
+		daemon su maasd - -c "\"exec /usr/sbin/maasd $MAASD_FLAGS &\""
+		RETVAL=$?
 		[ $RETVAL -eq 0 ] && touch /var/lock/subsys/maasd
-        else
-	      	msg_Already_Running maasd
+	else
+		msg_already_running maasd
 		exit 1
 	fi
-        ;;
+	;;
   stop)
-  	if [ -f /var/lock/subsys/maasd ]; then
-        	msg_stopping maasd
+	if [ -f /var/lock/subsys/maasd ]; then
+		msg_stopping maasd
 		killproc maasd
-        	rm -f /var/lock/subsys/maasd
-        else
-		msg_Not_Running maasd
+		rm -f /var/lock/subsys/maasd
+	else
+		msg_not_running maasd
 		exit 1
 	fi
 	;;
@@ -53,8 +62,8 @@ case "$1" in
 	$0 start
 	;;
   *)
-        echo "Usage: $0 {start|stop|restart|status}"
-        exit 1
+	msg_usage "$0 {start|stop|restart|reload|status}"
+	exit 1
 esac
 
-exit 0
+exit $RETVAL
