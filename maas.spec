@@ -28,7 +28,7 @@ protoko³y MADCAP i AAP.
 %setup  -q
 
 %build
-autoconf
+%{__autoconf}
 %configure 
 %{__make}
 
