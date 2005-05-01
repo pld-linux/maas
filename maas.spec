@@ -12,7 +12,7 @@ Source2:	%{name}d.init
 Source3:	%{name}d.sysconfig
 URL:		http://deimos.campus.luth.se/malloc/
 BuildRequires:	autoconf
-BuildRequires:	rpmbuild(macros) >= 1.159
+BuildRequires:	rpmbuild(macros) >= 1.202
 PreReq:		rc-scripts
 Requires(pre):	/usr/bin/getgid
 Requires(pre):	/bin/id
@@ -55,23 +55,8 @@ install %{SOURCE3} $RPM_BUILD_ROOT/etc/sysconfig/maasd
 rm -rf $RPM_BUILD_ROOT
 
 %pre
-if [ -n "`/usr/bin/getgid maasd`" ]; then
-	if [ "`getgid maasd`" != "69" ]; then
-		echo "Error: group maasd doesn't have gid=69. Correct this before installing maas." 1>&2
-		exit 1
-	fi
-else
-	/usr/sbin/groupadd -g 69 maasd 1>&2
-fi
-if [ -n "`/bin/id -u maasd 2>/dev/null`" ]; then
-	if [ "`/bin/id -u maasd`" != "69" ]; then
-		echo "Error: user maasd doesn't have uid=69. Correct this before installing maas." 1>&2
-		exit 1
-	fi
-else
-	/usr/sbin/useradd -u 69 -d /usr/share/empty -s /bin/false \
-		-c "MAAS User" -g maasd maasd 1>&2
-fi
+%groupadd -g 69 maasd
+%useradd -u 69 -d /usr/share/empty -s /bin/false -c "MAAS User" -g maasd maasd
 
 %post
 /sbin/chkconfig --add maasd
