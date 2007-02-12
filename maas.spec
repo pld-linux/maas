@@ -1,5 +1,5 @@
 Summary:	Multicast address allocation server
-Summary(pl):	Serwer przydzia≥u adresÛw multicastowych
+Summary(pl.UTF-8):   Serwer przydzia≈Çu adres√≥w multicastowych
 Name:		maas
 Version:	0.1
 Release:	3
@@ -30,9 +30,9 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 MAAS is multicast address allocation server using MADCAP and AAP
 protocols.
 
-%description -l pl
-MAAS to serwer przydzia≥u adresÛw multicastowych wykorzystuj±cy
-protoko≥y MADCAP i AAP.
+%description -l pl.UTF-8
+MAAS to serwer przydzia≈Çu adres√≥w multicastowych wykorzystujƒÖcy
+protoko≈Çy MADCAP i AAP.
 
 %prep
 %setup -q
