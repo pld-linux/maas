@@ -1,5 +1,5 @@
 Summary:	Multicast address allocation server
-Summary(pl.UTF-8):   Serwer przydziału adresów multicastowych
+Summary(pl.UTF-8):	Serwer przydziału adresów multicastowych
 Name:		maas
 Version:	0.1
 Release:	3
