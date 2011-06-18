@@ -7,10 +7,11 @@ License:	GPL
 Group:		Networking/Daemons
 Source0:	http://dl.sourceforge.net/malloc/%{name}-%{version}.tar.gz
 # Source0-md5:	3e27bb1d618fa7f232bee26f9461c951
-Source1:	http://deimos.campus.luth.se/malloc/documentation/%{name}_manual.pdf
+Source1:	%{name}_manual.pdf
+# Source1-md5:	e526a23cabaa9c483a0a0fd9a92ec74b
 Source2:	%{name}d.init
 Source3:	%{name}d.sysconfig
-URL:		http://deimos.campus.luth.se/malloc/
+URL:		http://malloc.sourceforge.net
 BuildRequires:	autoconf
 BuildRequires:	rpmbuild(macros) >= 1.202
 Requires(post,preun):	/sbin/chkconfig
